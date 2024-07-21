@@ -1,8 +1,17 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index ec7b501..34cf7b1 100644
+index ec7b501..055db36 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -17,7 +17,9 @@ if(MSVC)
+@@ -10,6 +10,8 @@ project(
+     LANGUAGES CXX
+ )
+ 
++option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
++
+ if(MSVC)
+     # Force compiler to use UTF-8 for IPA constants
+     add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+@@ -17,12 +19,14 @@ if(MSVC)
  
  elseif(NOT APPLE)
      # Linux flags
@@ -13,3 +22,55 @@ index ec7b501..34cf7b1 100644
      string(APPEND CMAKE_C_FLAGS " -Wall -Wextra")
  endif()
  
+ add_library(
+-    piper_phonemize SHARED
++    piper_phonemize
+     src/phonemize.cpp
+     src/phoneme_ids.cpp
+     src/tashkeel.cpp
+@@ -100,14 +104,19 @@ endif()
+ if(NOT DEFINED ESPEAK_NG_DIR)
+     set(ESPEAK_NG_DIR "${CMAKE_CURRENT_BINARY_DIR}/ei")
+ 
++    find_program(GIT_PROGRAM "git" REQUIRED)
+     include(ExternalProject)
+     ExternalProject_Add(
+         espeak_ng_external
+         PREFIX "${CMAKE_CURRENT_BINARY_DIR}/e"
+-        URL "https://github.com/rhasspy/espeak-ng/archive/0f65aa301e0d6bae5e172cc74197d32a6182200f.zip"
++        GIT_REPOSITORY "https://github.com/rhasspy/espeak-ng"
++        GIT_TAG "0f65aa301e0d6bae5e172cc74197d32a6182200f"
++        GIT_PROGRESS TRUE
++        UPDATE_DISCONNECTED TRUE
++        PATCH_COMMAND "${GIT_PROGRAM}" "apply" "${CMAKE_CURRENT_SOURCE_DIR}/espeak-ng.patch"
+         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${ESPEAK_NG_DIR}
+         CMAKE_ARGS -DUSE_ASYNC:BOOL=OFF
+-        CMAKE_ARGS -DBUILD_SHARED_LIBS:BOOL=ON
++        CMAKE_ARGS "-DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}"
+         CMAKE_ARGS -DUSE_MBROLA:BOOL=OFF
+         CMAKE_ARGS -DUSE_LIBSONIC:BOOL=OFF
+         CMAKE_ARGS -DUSE_LIBPCAUDIO:BOOL=OFF
+@@ -116,6 +125,7 @@ if(NOT DEFINED ESPEAK_NG_DIR)
+         CMAKE_ARGS -DEXTRA_cmn:BOOL=ON
+         CMAKE_ARGS -DEXTRA_ru:BOOL=ON
+         CMAKE_ARGS -DCMAKE_C_FLAGS="-D_FILE_OFFSET_BITS=64"
++        USES_TERMINAL_DOWNLOAD TRUE
+     )
+     add_dependencies(piper_phonemize espeak_ng_external)
+ endif()
+diff --git a/espeak-ng.patch b/espeak-ng.patch
+new file mode 100644
+index 0000000..a51d146
+--- /dev/null
++++ b/espeak-ng.patch
+@@ -0,0 +1,10 @@
++diff --git a/src/ucd-tools/CMakeLists.txt b/src/ucd-tools/CMakeLists.txt
++index 2050c114..4bd7d17e 100644
++--- a/src/ucd-tools/CMakeLists.txt
+++++ b/src/ucd-tools/CMakeLists.txt
++@@ -1,4 +1,4 @@
++-add_library(ucd STATIC
+++add_library(ucd OBJECT
++   src/case.c
++   src/categories.c
++   src/ctype.c
