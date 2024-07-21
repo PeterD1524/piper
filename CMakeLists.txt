@@ -60,10 +60,14 @@ endif()
 
 if(NOT DEFINED PIPER_PHONEMIZE_DIR)
   set(PIPER_PHONEMIZE_DIR "${CMAKE_CURRENT_BINARY_DIR}/pi")
+  find_program(GIT_CMD git REQUIRED)
   ExternalProject_Add(
     piper_phonemize_external
     PREFIX "${CMAKE_CURRENT_BINARY_DIR}/p"
-    URL "https://github.com/rhasspy/piper-phonemize/archive/refs/heads/master.zip"
+    GIT_REPOSITORY "https://github.com/rhasspy/piper-phonemize.git"
+    GIT_TAG "bfc2e7549957829b0227c66a305d11cc88167bda" # master
+    UPDATE_DISCONNECTED TRUE
+    PATCH_COMMAND "${GIT_CMD}" "apply" "${CMAKE_CURRENT_SOURCE_DIR}/piper-phonemize.patch"
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${PIPER_PHONEMIZE_DIR}
   )
   add_dependencies(piper piper_phonemize_external)
