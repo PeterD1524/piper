@@ -62,22 +62,16 @@ endif()
 
 # ---- piper-phonemize ---
 
-if(NOT DEFINED PIPER_PHONEMIZE_DIR)
-  set(PIPER_PHONEMIZE_DIR "${CMAKE_CURRENT_BINARY_DIR}/pi")
-  find_program(GIT_CMD git REQUIRED)
-  ExternalProject_Add(
-    piper_phonemize_external
-    PREFIX "${CMAKE_CURRENT_BINARY_DIR}/p"
-    GIT_REPOSITORY "https://github.com/rhasspy/piper-phonemize.git"
-    GIT_TAG "bfc2e7549957829b0227c66a305d11cc88167bda" # master
-    UPDATE_DISCONNECTED TRUE
-    PATCH_COMMAND "${GIT_CMD}" "apply" "${CMAKE_CURRENT_SOURCE_DIR}/piper-phonemize.patch"
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${PIPER_PHONEMIZE_DIR}
-    CMAKE_CACHE_ARGS "-DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}" "-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=${CMAKE_POSITION_INDEPENDENT_CODE}"
-  )
-  add_dependencies(piper piper_phonemize_external)
-  add_dependencies(test_piper piper_phonemize_external)
-endif()
+include(FetchContent)
+find_program(GIT_CMD git REQUIRED)
+FetchContent_Declare(
+  piper_phonemize
+  GIT_REPOSITORY "https://github.com/rhasspy/piper-phonemize.git"
+  GIT_TAG "bfc2e7549957829b0227c66a305d11cc88167bda" # master
+  UPDATE_DISCONNECTED TRUE
+  PATCH_COMMAND "${GIT_CMD}" "apply" "${CMAKE_CURRENT_SOURCE_DIR}/piper-phonemize.patch"
+)
+FetchContent_MakeAvailable(piper_phonemize)
 
 # ---- Declare executable ----
 
@@ -104,13 +98,11 @@ target_link_libraries(piper
 target_link_directories(piper PUBLIC
   ${FMT_DIR}/lib
   ${SPDLOG_DIR}/lib
-  ${PIPER_PHONEMIZE_DIR}/lib
 )
 
 target_include_directories(piper PUBLIC
   ${FMT_DIR}/include
   ${SPDLOG_DIR}/include
-  ${PIPER_PHONEMIZE_DIR}/include
 )
 
 target_compile_definitions(piper PUBLIC _PIPER_VERSION=${piper_version})
@@ -121,14 +113,12 @@ target_include_directories(
   test_piper PUBLIC
   ${FMT_DIR}/include
   ${SPDLOG_DIR}/include
-  ${PIPER_PHONEMIZE_DIR}/include
 )
 
 target_link_directories(
   test_piper PUBLIC
   ${FMT_DIR}/lib
   ${SPDLOG_DIR}/lib
-  ${PIPER_PHONEMIZE_DIR}/lib
 )
 
 target_link_libraries(test_piper PUBLIC
@@ -144,32 +134,3 @@ target_link_libraries(test_piper PUBLIC
 install(
   TARGETS piper
   DESTINATION ${CMAKE_INSTALL_PREFIX})
-
-# Dependencies
-install(
-  DIRECTORY ${PIPER_PHONEMIZE_DIR}/bin/
-  DESTINATION ${CMAKE_INSTALL_PREFIX}
-  USE_SOURCE_PERMISSIONS  # keep +x
-  FILES_MATCHING
-  PATTERN "piper_phonemize"
-  PATTERN "espeak-ng"
-  PATTERN "*.dll"
-)
-
-install(
-  DIRECTORY ${PIPER_PHONEMIZE_DIR}/lib/
-  DESTINATION ${CMAKE_INSTALL_PREFIX}
-  FILES_MATCHING
-  PATTERN "*.dll"
-  PATTERN "*.so*"
-)
-
-install(
-  DIRECTORY ${PIPER_PHONEMIZE_DIR}/share/espeak-ng-data
-  DESTINATION ${CMAKE_INSTALL_PREFIX}
-)
-
-install(
-  FILES ${PIPER_PHONEMIZE_DIR}/share/libtashkeel_model.ort
-  DESTINATION ${CMAKE_INSTALL_PREFIX}
-)
