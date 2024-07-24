@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index ec7b501..1d914e9 100644
+index ec7b501..335ef46 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -10,6 +10,8 @@ project(
@@ -46,7 +46,7 @@ index ec7b501..1d914e9 100644
 +    find_package(onnxruntime "${ONNXRUNTIME_VERSION}")
 +    if(onnxruntime_FOUND)
 +        list(APPEND ONNXRUNTIME_LINK_LIBRARIES "onnxruntime::onnxruntime")
-+    endif()
+     endif()
 +endif()
 +
 +if(NOT onnxruntime_FOUND AND NOT DEFINED ONNXRUNTIME_DIR)
@@ -58,7 +58,7 @@ index ec7b501..1d914e9 100644
 +            list(APPEND ONNXRUNTIME_LINK_LIBRARIES "${ONNXRUNTIME_LIBRARY}")
 +            set(onnxruntime_FOUND TRUE)
 +        endif()
-     endif()
++    endif()
 +endif()
  
 +# Look for onnxruntime files in <root>/lib
@@ -139,7 +139,26 @@ index ec7b501..1d914e9 100644
  )
  
  target_compile_features(piper_phonemize PUBLIC cxx_std_17)
-@@ -207,7 +249,7 @@ install(
+@@ -173,12 +215,13 @@ target_link_libraries(piper_phonemize_exe PUBLIC
+ # ---- Declare test ----
+ 
+ include(CTest)
+-enable_testing()
+ add_executable(test_piper_phonemize src/test.cpp src/phoneme_ids.cpp)
+-add_test(
+-    NAME test_piper_phonemize
+-    COMMAND test_piper_phonemize "${ESPEAK_NG_DIR}/share/espeak-ng-data" "${CMAKE_SOURCE_DIR}/etc/libtashkeel_model.ort"
+-)
++if(BUILD_TESTING)
++    add_test(
++        NAME test_piper_phonemize
++        COMMAND test_piper_phonemize "${ESPEAK_NG_DIR}/share/espeak-ng-data" "${CMAKE_SOURCE_DIR}/etc/libtashkeel_model.ort"
++    )
++endif()
+ 
+ target_compile_features(test_piper_phonemize PUBLIC cxx_std_17)
+ 
+@@ -207,7 +250,7 @@ install(
      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
  
  install(
@@ -148,7 +167,7 @@ index ec7b501..1d914e9 100644
      DESTINATION include/piper-phonemize
      FILES_MATCHING
      PATTERN "*.h"
-@@ -218,7 +260,7 @@ install(
+@@ -218,7 +261,7 @@ install(
      ARCHIVE DESTINATION ${CMAKE_INSTALL_BINDIR})
  
  install(
@@ -157,7 +176,7 @@ index ec7b501..1d914e9 100644
      TYPE DATA)
  
  # Dependencies
-@@ -226,10 +268,12 @@ install(
+@@ -226,10 +269,12 @@ install(
      DIRECTORY ${ESPEAK_NG_DIR}/
      DESTINATION ${CMAKE_INSTALL_PREFIX})
  
