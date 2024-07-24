@@ -81,31 +81,31 @@ if((NOT MSVC) AND (NOT APPLE))
   list(APPEND CMAKE_BUILD_RPATH "$ORIGIN")
   list(APPEND CMAKE_INSTALL_RPATH "$ORIGIN")
   string(APPEND CMAKE_C_FLAGS " -Wall -Wextra")
-  target_link_libraries(piper -static-libgcc -static-libstdc++)
+  target_link_libraries(piper PRIVATE -static-libgcc -static-libstdc++)
 
   set(PIPER_EXTRA_LIBRARIES "pthread")
 endif()
 
-target_link_libraries(piper
+target_link_libraries(piper PRIVATE
   fmt
   spdlog
   espeak-ng
-  piper_phonemize
   onnxruntime
   ${PIPER_EXTRA_LIBRARIES}
+  PUBLIC piper_phonemize
 )
 
-target_link_directories(piper PUBLIC
+target_link_directories(piper PRIVATE
   ${FMT_DIR}/lib
   ${SPDLOG_DIR}/lib
 )
 
-target_include_directories(piper PUBLIC
+target_include_directories(piper PRIVATE
   ${FMT_DIR}/include
   ${SPDLOG_DIR}/include
 )
 
-target_compile_definitions(piper PUBLIC _PIPER_VERSION=${piper_version})
+target_compile_definitions(piper PRIVATE _PIPER_VERSION=${piper_version})
 
 target_compile_features(test_piper PUBLIC cxx_std_17)
 
