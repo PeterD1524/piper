@@ -100,9 +100,13 @@ target_link_directories(piper PRIVATE
   ${SPDLOG_DIR}/lib
 )
 
+set(PIPER_INTERFACE_INCLUDE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
+file(COPY src/cpp/piper.hpp src/cpp/json.hpp DESTINATION "${PIPER_INTERFACE_INCLUDE_DIRECTORY}")
+
 target_include_directories(piper PRIVATE
   ${FMT_DIR}/include
   ${SPDLOG_DIR}/include
+  INTERFACE "${PIPER_INTERFACE_INCLUDE_DIRECTORY}"
 )
 
 target_compile_definitions(piper PRIVATE _PIPER_VERSION=${piper_version})
