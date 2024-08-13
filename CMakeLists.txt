@@ -31,6 +31,11 @@ add_executable(test_piper src/cpp/test.cpp src/cpp/piper.cpp)
 
 set(fmt_FOUND FALSE)
 
+if(NOT fmt_FOUND AND TARGET "fmt::fmt")
+  list(APPEND FMT_LINK_LIBRARIES "fmt::fmt")
+  set(fmt_FOUND TRUE)
+endif()
+
 if(NOT fmt_FOUND AND NOT DEFINED FMT_DIR)
   find_package(fmt)
   if(fmt_FOUND)
@@ -64,6 +69,11 @@ endif()
 # ---- spdlog ---
 
 set(spdlog_FOUND FALSE)
+
+if(NOT spdlog_FOUND AND TARGET "spdlog::spdlog")
+  list(APPEND SPDLOG_LINK_LIBRARIES "spdlog::spdlog")
+  set(spdlog_FOUND TRUE)
+endif()
 
 if(NOT spdlog_FOUND AND NOT DEFINED SPDLOG_DIR)
   find_package(spdlog)
