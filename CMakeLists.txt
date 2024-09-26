@@ -130,8 +130,8 @@ if((NOT MSVC) AND (NOT APPLE))
 endif()
 
 target_link_libraries(piper PRIVATE
-  "${FMT_LINK_LIBRARIES}"
-  "${SPDLOG_LINK_LIBRARIES}"
+  ${FMT_LINK_LIBRARIES}
+  ${SPDLOG_LINK_LIBRARIES}
   espeak-ng
   onnxruntime
   ${PIPER_EXTRA_LIBRARIES}
@@ -139,16 +139,16 @@ target_link_libraries(piper PRIVATE
 )
 
 target_link_directories(piper PRIVATE
-  "${FMT_LINK_DIRECTORIES}"
-  "${SPDLOG_LINK_DIRECTORIES}"
+  ${FMT_LINK_DIRECTORIES}
+  ${SPDLOG_LINK_DIRECTORIES}
 )
 
 set(PIPER_INTERFACE_INCLUDE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/include")
 file(COPY src/cpp/piper.hpp src/cpp/json.hpp DESTINATION "${PIPER_INTERFACE_INCLUDE_DIRECTORY}")
 
 target_include_directories(piper PRIVATE
-  "${FMT_INCLUDE_DIRECTORIES}"
-  "${SPDLOG_INCLUDE_DIRECTORIES}"
+  ${FMT_INCLUDE_DIRECTORIES}
+  ${SPDLOG_INCLUDE_DIRECTORIES}
   INTERFACE "${PIPER_INTERFACE_INCLUDE_DIRECTORY}"
 )
 
@@ -158,19 +158,19 @@ target_compile_features(test_piper PUBLIC cxx_std_17)
 
 target_include_directories(
   test_piper PUBLIC
-  "${FMT_INCLUDE_DIRECTORIES}"
-  "${SPDLOG_INCLUDE_DIRECTORIES}"
+  ${FMT_INCLUDE_DIRECTORIES}
+  ${SPDLOG_INCLUDE_DIRECTORIES}
 )
 
 target_link_directories(
   test_piper PUBLIC
-  "${FMT_LINK_DIRECTORIES}"
-  "${SPDLOG_LINK_DIRECTORIES}"
+  ${FMT_LINK_DIRECTORIES}
+  ${SPDLOG_LINK_DIRECTORIES}
 )
 
 target_link_libraries(test_piper PUBLIC
-  "${FMT_LINK_LIBRARIES}"
-  "${SPDLOG_LINK_LIBRARIES}"
+  ${FMT_LINK_LIBRARIES}
+  ${SPDLOG_LINK_LIBRARIES}
   espeak-ng
   piper_phonemize
   onnxruntime
